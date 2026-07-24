@@ -566,7 +566,7 @@ function buildTimeCard(habit) {
           class="custom-time-input"
           type="text"
           inputmode="decimal"
-          placeholder="напр. 1.5"
+          placeholder="Своё время"
           aria-label="Своё время в часах"
         />
         <button class="small-add-btn add-time-btn" type="button">
