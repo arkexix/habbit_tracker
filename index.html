@@ -1,90 +1,112 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Трекер привычек</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Задачи</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
   <div class="bg-glow bg-glow-a"></div>
   <div class="bg-glow bg-glow-b"></div>
 
-  <div class="container">
+  <main class="container">
+    <nav class="page-nav" aria-label="Разделы">
+      <a href="index.html" class="nav-btn active">Задачи</a>
+      <a href="habits.html" class="nav-btn">Привычки</a>
+    </nav>
 
     <header class="header">
-      <span class="header-badge">◆ трекер привычек</span>
-      <h1 class="title">Держи <span class="accent">ритм</span></h1>
-      <p class="subtitle">Каждый выполненный день — ещё одно звено в цепи. Не разрывай её.</p>
+      <div class="header-badge">◆ задачи на день</div>
+      <h1 class="title">
+        Держи <span class="accent">ритм</span>
+      </h1>
+      <p class="subtitle">
+        Каждый выполненный день — ещё одно звено в цепи. Не разрывай его.
+      </p>
     </header>
 
     <section class="stats" aria-label="Статистика">
       <div class="stat">
-        <span class="stat-value" id="statTotal">0</span>
-        <span class="stat-label">привычек</span>
+        <span id="statTotal" class="stat-value">0</span>
+        <span class="stat-label">задач</span>
       </div>
+
       <div class="stat">
-        <span class="stat-value" id="statDone">0</span>
+        <span id="statDone" class="stat-value">0</span>
         <span class="stat-label">сделано сегодня</span>
       </div>
+
       <div class="stat">
-        <span class="stat-value" id="statStreak">0</span>
+        <span id="statStreak" class="stat-value">0</span>
         <span class="stat-label">лучший стрик</span>
       </div>
     </section>
 
-    <form class="add-form" id="addForm" autocomplete="off">
+    <form id="addForm" class="add-form" autocomplete="off">
       <div class="add-input-wrap">
         <input
-          type="text"
           id="habitInput"
           class="add-input"
-          placeholder="Например: читать 20 минут перед сном"
+          type="text"
+          placeholder="Новая задача..."
           maxlength="60"
-        >
+        />
       </div>
-      <button type="submit" class="add-btn">
+
+      <button class="add-btn" type="submit">
         <span class="add-btn-plus">+</span>
-        <span>Добавить</span>
+        Добавить
       </button>
     </form>
-    <p class="form-hint" id="formHint" aria-live="polite"></p>
+
+    <div id="formHint" class="form-hint"></div>
 
     <div class="lists">
-
-      <section class="habit-group">
+      <section>
         <h2 class="group-title">
           <span class="group-dot dot-pending"></span>
           В работе
-          <span class="group-count" id="countPending">0</span>
+          <span id="countPending" class="group-count">0</span>
         </h2>
-        <div class="habit-list" id="listPending"></div>
-        <p class="empty-state" id="emptyPending">Пока нет активных привычек.<br>Добавь первую выше ↑</p>
+
+        <div id="listPending" class="habit-list"></div>
+
+        <div id="emptyPending" class="empty-state">
+          Пока нет активных задач.<br />
+          Добавь первую выше ↑
+        </div>
       </section>
 
-      <section class="habit-group">
+      <section>
         <h2 class="group-title">
           <span class="group-dot dot-done"></span>
           Готово на сегодня
-          <span class="group-count" id="countDone">0</span>
+          <span id="countDone" class="group-count">0</span>
         </h2>
-        <div class="habit-list" id="listDone"></div>
-        <p class="empty-state" id="emptyDone">Сегодня пока ничего не отмечено.</p>
-      </section>
 
+        <div id="listDone" class="habit-list"></div>
+
+        <div id="emptyDone" class="empty-state">
+          Сегодня пока ничего не отмечено.
+        </div>
+      </section>
     </div>
 
     <footer class="footer">
-      <p>Данные хранятся локально в этом браузере · <span id="todayDate"></span></p>
+      Данные хранятся локально в этом браузере ·
+      <span id="todayDate"></span>
     </footer>
+  </main>
 
-  </div>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
