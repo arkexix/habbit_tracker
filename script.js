@@ -111,24 +111,23 @@ function render() {
   });
 }
 
-// Инициализация событий
-document.addEventListener('DOMContentLoaded', () => {
-  const addBtn = document.getElementById('addBtn');
-  const habitInput = document.getElementById('habitInput');
+// Инициализация элементов и обработчиков
+const addBtn = document.getElementById('addBtn');
+const habitInput = document.getElementById('habitInput');
 
-  function handleAdd() {
-    const text = habitInput.value;
-    if (text.trim()) {
-      addHabit(text);
-      habitInput.value = '';
-      render();
-    }
+function handleAdd() {
+  const text = habitInput.value;
+  if (text.trim()) {
+    addHabit(text);
+    habitInput.value = '';
+    render();
   }
+}
 
-  addBtn.addEventListener('click', handleAdd);
-  habitInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleAdd();
-  });
-
-  render();
+addBtn.addEventListener('click', handleAdd);
+habitInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleAdd();
 });
+
+// Первоначальный рендер
+render();
