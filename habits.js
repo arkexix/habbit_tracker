@@ -269,12 +269,10 @@ function resetToday(habitId) {
   const tKey = todayKey();
   const before = habit.logs.length;
   habit.logs = habit.logs.filter((log) => log.dateKey !== tKey);
-  if (habit.logs.length === before) {
-    showHint('Нечего сбрасывать');
-    return;
+  if (habit.logs.length !== before) {
+    saveHabits();
+    render();
   }
-  saveHabits();
-  render();
 }
 /* ---------- charts ---------- */
 function buildChart(getDayMinutes, n) {
@@ -316,7 +314,17 @@ function progressHtml(habit, todayMinutes) {
     100,
     Math.round((todayMinutes / habit.goalMinutes) * 100)
   );
-  return `<div class="progress-wrap"> <div class="progress-label"> <span>Цель: ${formatMinutes(habit.goalMinutes)}</span> <span>${percent}%</span> </div> <div class="progress-bar"> <div class="progress-fill" style="width:${percent}%"></div> </div> </div>`;
+  return `
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span>Цель: ${formatMinutes(habit.goalMinutes)}</span>
+        <span>${percent}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width:${percent}%"></div>
+      </div>
+    </div>
+  `;
 }
 function detailsHtml(habit) {
   const total = totalMinutes(habit);
@@ -458,10 +466,7 @@ function buildTimeCard(habit) {
           OK
         </button>
       </div>
-      <div
-        class="time-controls-bottom"
-        style="flex-basis:100%;display:flex;align-items:center;gap:8px;margin-top:6px;"
-      >
+      <div style="flex-basis:100%;display:flex;margin-top:2px;">
         <button class="quick-btn reset-today-btn" type="button">
           Сбросить
         </button>
@@ -541,7 +546,13 @@ function render() {
 /* ---------- inline delete confirm ---------- */
 function startDeleteConfirm(card, habit) {
   const actions = card.querySelector('.time-actions');
-  actions.innerHTML = `<div class="confirm-row"> Удалить? <button class="confirm-btn confirm-yes" type="button">Да</button> <button class="confirm-btn confirm-no" type="button">Нет</button> </div>`;
+  actions.innerHTML = `
+    <div class="confirm-row">
+      Удалить?
+      <button class="confirm-btn confirm-yes" type="button">Да</button>
+      <button class="confirm-btn confirm-no" type="button">Нет</button>
+    </div>
+  `;
   actions.querySelector('.confirm-yes').addEventListener('click', () => {
     card.classList.add('is-leaving');
     setTimeout(() => deleteHabit(habit.id), 220);
@@ -633,59 +644,4 @@ document.addEventListener('click', (e) => {
   }
   const saveEditBtn = e.target.closest('.save-edit-btn');
   if (saveEditBtn) {
-    const name = card.querySelector('.edit-name').value.trim();
-    const icon = card.querySelector('.edit-icon').value.trim();
-    const goalRaw = card.querySelector('.edit-goal').value.trim();
-    if (!name) {
-      showHint('Введи название привычки');
-      return;
-    }
-    if (name.length > 60) {
-      showHint('Слишком длинное название');
-      return;
-    }
-    let goalMinutes = null;
-    if (goalRaw) {
-      goalMinutes = parseGoalMinutes(goalRaw);
-      if (!goalMinutes) {
-        showHint('Цель должна быть числом больше 0');
-        return;
-      }
-    }
-    habit.name = name;
-    habit.icon = icon;
-    habit.goalMinutes = goalMinutes;
-    editingId = null;
-    saveHabits();
-    render();
-    return;
-  }
-  const cancelEditBtn = e.target.closest('.cancel-edit-btn');
-  if (cancelEditBtn) {
-    editingId = null;
-    render();
-  }
-});
-document.addEventListener('keydown', (e) => {
-  const target = e.target;
-  if (!target || !target.classList) return;
-  if (target.classList.contains('custom-time-input') && e.key === 'Enter') {
-    e.preventDefault();
-    const card = target.closest('.time-card');
-    if (!card) return;
-    const btn = card.querySelector('.add-time-btn');
-    if (btn) btn.click();
-  }
-  if (
-    (target.classList.contains('edit-name') ||
-      target.classList.contains('edit-icon') ||
-      target.classList.contains('edit-goal')) &&
-    e.key === 'Escape'
-  ) {
-    editingId = null;
-    render();
-  }
-});
-/* ---------- init ---------- */
-els.todayDate.textContent = formatToday();
-render();
+    const name = card
