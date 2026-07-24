@@ -406,9 +406,6 @@ function buildTimeCard(habit) {
   const iconHtml = habit.icon
     ? `<span class="time-icon">${escapeHtml(habit.icon)}</span>`
     : '';
-  // ВАЖНО: кнопок вычитания времени и кнопки «Отменить» здесь намеренно нет.
-  // Оставлены только кнопки добавления (+15м/+30м/+1ч/+2ч), поле «Своё время»
-  // и перенесённая на отдельную строку кнопка «Сбросить».
   card.innerHTML = `
     <div class="time-top">
       <div class="time-info">
