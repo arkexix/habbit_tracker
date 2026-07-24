@@ -3,25 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Привычки</title>
+  <title>Привычки — трекер</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet"
   />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="bg-glow bg-glow-a"></div>
-  <div class="bg-glow bg-glow-b"></div>
+  <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
 
   <div class="container">
-    <nav class="page-nav">
-      <a class="nav-btn" href="index.html">Задачи</a>
-      <a class="nav-btn active" href="habits.html">Привычки</a>
-    </nav>
-
     <header class="header">
       <span class="header-badge">◆ учёт времени</span>
       <h1 class="title">Считай <span class="accent">часы</span></h1>
@@ -33,11 +28,11 @@
 
     <section class="stats">
       <div class="stat">
-        <span class="stat-value" id="statToday">0 ч</span>
+        <span class="stat-value stat-value-small" id="statToday">0 ч</span>
         <span class="stat-label">сегодня</span>
       </div>
       <div class="stat">
-        <span class="stat-value" id="statWeek">0 ч</span>
+        <span class="stat-value stat-value-small" id="statWeek">0 ч</span>
         <span class="stat-label">за неделю</span>
       </div>
       <div class="stat">
@@ -50,38 +45,51 @@
       </div>
     </section>
 
-    <form class="time-form" id="habitForm">
+    <form class="time-form" id="habitForm" autocomplete="off">
       <div class="add-input-wrap">
         <input
           class="add-input"
-          id="habitNameInput"
           type="text"
+          id="habitNameInput"
           maxlength="60"
-          placeholder="Название привычки"
+          placeholder="Новая привычка…"
           aria-label="Название привычки"
         />
       </div>
       <input
         class="add-input time-input-small"
-        id="habitIconInput"
         type="text"
+        id="habitIconInput"
         maxlength="4"
-        placeholder="🇬🇧"
+        placeholder="🎯"
+        title="Иконка (эмодзи)"
         aria-label="Иконка привычки"
       />
       <input
         class="add-input time-input-small"
-        id="habitGoalInput"
         type="text"
+        id="habitGoalInput"
         inputmode="decimal"
         placeholder="Цель, ч"
         aria-label="Цель в часах"
       />
       <button class="add-btn" type="submit">
-        <span class="add-btn-plus">+</span>Добавить
+        <span class="add-btn-plus">+</span> Добавить
       </button>
     </form>
-    <div class="form-hint" id="habitHint"></div>
+    <p class="form-hint" id="habitHint"></p>
+
+    <div class="chart-card">
+      <div class="section-head">
+        <h2 class="section-title">Общая активность</h2>
+        <div class="period-switch">
+          <button class="period-btn active" type="button" data-period="7">7д</button>
+          <button class="period-btn" type="button" data-period="14">14д</button>
+          <button class="period-btn" type="button" data-period="30">30д</button>
+        </div>
+      </div>
+      <div id="overallChart"></div>
+    </div>
 
     <div class="habit-list" id="habitsList"></div>
     <div class="empty-state" id="emptyHabits">
@@ -92,6 +100,12 @@
       Данные хранятся локально в этом браузере · <span id="todayDate"></span>
     </footer>
   </div>
+
+  <nav class="page-nav" id="pageNav" aria-label="Переключение страниц">
+    <a class="nav-link" href="index.html">задачи</a>
+    <span class="nav-sep" aria-hidden="true"></span>
+    <a class="nav-link active" href="habits.html">привычки</a>
+  </nav>
 
   <script src="habits.js"></script>
 </body>
