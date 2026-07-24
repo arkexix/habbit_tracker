@@ -4,124 +4,94 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Привычки</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@600;700;800&display=swap"
     rel="stylesheet"
   />
-
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="bg-glow bg-glow-a"></div>
   <div class="bg-glow bg-glow-b"></div>
 
-  <main class="container">
-    <nav class="page-nav" aria-label="Разделы">
-      <a href="index.html" class="nav-btn">Задачи</a>
-      <a href="habits.html" class="nav-btn active">Привычки</a>
+  <div class="container">
+    <nav class="page-nav">
+      <a class="nav-btn" href="index.html">Задачи</a>
+      <a class="nav-btn active" href="habits.html">Привычки</a>
     </nav>
 
     <header class="header">
-      <div class="header-badge">◆ учёт времени</div>
-      <h1 class="title">
-        Считай <span class="accent">часы</span>
-      </h1>
+      <span class="header-badge">◆ учёт времени</span>
+      <h1 class="title">Считай <span class="accent">часы</span></h1>
       <p class="subtitle">
-        Добавляй время за день, ставь цели и смотри статистику по каждой привычке.
+        Добавляй время за день, ставь цели и смотри статистику по каждой
+        привычке.
       </p>
     </header>
 
-    <section class="stats" aria-label="Общая статистика">
+    <section class="stats">
       <div class="stat">
-        <span id="statToday" class="stat-value">0 ч</span>
+        <span class="stat-value" id="statToday">0 ч</span>
         <span class="stat-label">сегодня</span>
       </div>
-
       <div class="stat">
-        <span id="statWeek" class="stat-value">0 ч</span>
+        <span class="stat-value" id="statWeek">0 ч</span>
         <span class="stat-label">за неделю</span>
       </div>
-
       <div class="stat">
-        <span id="statBestStreak" class="stat-value">0</span>
+        <span class="stat-value" id="statBestStreak">0</span>
         <span class="stat-label">лучшая серия</span>
       </div>
-
       <div class="stat">
-        <span id="statActiveHabit" class="stat-value stat-value-small">—</span>
+        <span class="stat-value stat-value-small" id="statActiveHabit">—</span>
         <span class="stat-label">активная</span>
       </div>
     </section>
 
-    <section class="chart-card" aria-label="График по дням">
-      <div class="section-head">
-        <h2 class="section-title">График по дням</h2>
-
-        <div class="period-switch">
-          <button class="period-btn active" type="button" data-period="7">
-            7 дней
-          </button>
-          <button class="period-btn" type="button" data-period="30">
-            30 дней
-          </button>
-        </div>
-      </div>
-
-      <div id="overallChart" class="chart"></div>
-    </section>
-
-    <form id="habitForm" class="time-form" autocomplete="off">
+    <form class="time-form" id="habitForm">
       <div class="add-input-wrap">
         <input
-          id="habitNameInput"
           class="add-input"
+          id="habitNameInput"
           type="text"
-          placeholder="Название привычки"
           maxlength="60"
+          placeholder="Название привычки"
+          aria-label="Название привычки"
         />
       </div>
-
       <input
-        id="habitIconInput"
         class="add-input time-input-small"
+        id="habitIconInput"
         type="text"
-        placeholder="🇬🇧"
         maxlength="4"
+        placeholder="🇬🇧"
         aria-label="Иконка привычки"
       />
-
       <input
-        id="habitGoalInput"
         class="add-input time-input-small"
+        id="habitGoalInput"
         type="text"
-        placeholder="Цель, ч"
         inputmode="decimal"
+        placeholder="Цель, ч"
         aria-label="Цель в часах"
       />
-
       <button class="add-btn" type="submit">
-        <span class="add-btn-plus">+</span>
-        Добавить
+        <span class="add-btn-plus">+</span>Добавить
       </button>
     </form>
+    <div class="form-hint" id="habitHint"></div>
 
-    <div id="habitHint" class="form-hint"></div>
-
-    <div id="habitsList" class="habit-list"></div>
-
-    <div id="emptyHabits" class="empty-state">
-      Пока нет привычек.<br />
-      Добавь первую выше ↑
+    <div class="habit-list" id="habitsList"></div>
+    <div class="empty-state" id="emptyHabits">
+      Пока нет привычек.<br />Добавь первую выше ↑
     </div>
 
     <footer class="footer">
-      Данные хранятся локально в этом браузере ·
-      <span id="todayDate"></span>
+      Данные хранятся локально в этом браузере · <span id="todayDate"></span>
     </footer>
-  </main>
+  </div>
 
   <script src="habits.js"></script>
 </body>
