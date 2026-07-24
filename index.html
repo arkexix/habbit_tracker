@@ -3,86 +3,70 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Задачи</title>
-
+  <title>Задачи — трекер</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@600;700;800&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet"
   />
-
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="bg-glow bg-glow-a"></div>
-  <div class="bg-glow bg-glow-b"></div>
+  <div class="bg-glow bg-glow-a" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow-b" aria-hidden="true"></div>
 
-  <main class="container">
-    <nav class="page-nav" aria-label="Разделы">
-      <a href="index.html" class="nav-btn active">Задачи</a>
-      <a href="habits.html" class="nav-btn">Привычки</a>
-    </nav>
-
+  <div class="container">
     <header class="header">
-      <div class="header-badge">◆ задачи на день</div>
-      <h1 class="title">
-        Держи <span class="accent">ритм</span>
-      </h1>
+      <span class="header-badge">◆ задачи на день</span>
+      <h1 class="title">Держи <span class="accent">ритм</span></h1>
       <p class="subtitle">
         Каждый выполненный день — ещё одно звено в цепи. Не разрывай его.
       </p>
     </header>
 
-    <section class="stats" aria-label="Статистика">
+    <section class="stats">
       <div class="stat">
-        <span id="statTotal" class="stat-value">0</span>
+        <span class="stat-value" id="statTotal">0</span>
         <span class="stat-label">задач</span>
       </div>
-
       <div class="stat">
-        <span id="statDone" class="stat-value">0</span>
+        <span class="stat-value" id="statDone">0</span>
         <span class="stat-label">сделано сегодня</span>
       </div>
-
       <div class="stat">
-        <span id="statStreak" class="stat-value">0</span>
+        <span class="stat-value" id="statStreak">0</span>
         <span class="stat-label">лучший стрик</span>
       </div>
     </section>
 
-    <form id="addForm" class="add-form" autocomplete="off">
+    <form class="add-form" id="addForm" autocomplete="off">
       <div class="add-input-wrap">
         <input
-          id="habitInput"
           class="add-input"
           type="text"
-          placeholder="Новая задача..."
+          id="habitInput"
           maxlength="60"
+          placeholder="Новая задача…"
+          aria-label="Название задачи"
         />
       </div>
-
       <button class="add-btn" type="submit">
-        <span class="add-btn-plus">+</span>
-        Добавить
+        <span class="add-btn-plus">+</span> Добавить
       </button>
     </form>
-
-    <div id="formHint" class="form-hint"></div>
+    <p class="form-hint" id="formHint"></p>
 
     <div class="lists">
       <section>
         <h2 class="group-title">
           <span class="group-dot dot-pending"></span>
           В работе
-          <span id="countPending" class="group-count">0</span>
+          <span class="group-count" id="countPending">0</span>
         </h2>
-
-        <div id="listPending" class="habit-list"></div>
-
-        <div id="emptyPending" class="empty-state">
-          Пока нет активных задач.<br />
-          Добавь первую выше ↑
+        <div class="habit-list" id="listPending"></div>
+        <div class="empty-state" id="emptyPending">
+          Пока нет активных задач.<br />Добавь первую выше ↑
         </div>
       </section>
 
@@ -90,22 +74,25 @@
         <h2 class="group-title">
           <span class="group-dot dot-done"></span>
           Готово на сегодня
-          <span id="countDone" class="group-count">0</span>
+          <span class="group-count" id="countDone">0</span>
         </h2>
-
-        <div id="listDone" class="habit-list"></div>
-
-        <div id="emptyDone" class="empty-state">
+        <div class="habit-list" id="listDone"></div>
+        <div class="empty-state" id="emptyDone">
           Сегодня пока ничего не отмечено.
         </div>
       </section>
     </div>
 
     <footer class="footer">
-      Данные хранятся локально в этом браузере ·
-      <span id="todayDate"></span>
+      Данные хранятся локально в этом браузере · <span id="todayDate"></span>
     </footer>
-  </main>
+  </div>
+
+  <nav class="page-nav" id="pageNav" aria-label="Переключение страниц">
+    <a class="nav-link active" href="index.html">задачи</a>
+    <span class="nav-sep" aria-hidden="true"></span>
+    <a class="nav-link" href="habits.html">привычки</a>
+  </nav>
 
   <script src="script.js"></script>
 </body>
