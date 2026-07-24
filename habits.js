@@ -15,14 +15,13 @@ const els = {
   statWeek: document.getElementById('statWeek'),
   statBestStreak: document.getElementById('statBestStreak'),
   statActiveHabit: document.getElementById('statActiveHabit'),
+  overallChart: document.getElementById('overallChart'),
   todayDate: document.getElementById('todayDate'),
 };
-
 let habits = loadHabits();
 let periodDays = 7;
 let editingId = null;
 const openDetails = new Set();
-
 /* ---------- date helpers ---------- */
 function toKey(date) {
   const y = date.getFullYear();
@@ -71,7 +70,6 @@ const MONTHS_SHORT_RU = [
   'дек',
 ];
 const WEEKDAYS_RU = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
-
 function formatToday() {
   const d = new Date();
   return `${WEEKDAYS_RU[d.getDay()]}, ${d.getDate()} ${MONTHS_RU[d.getMonth()]}`;
@@ -88,7 +86,6 @@ function pluralDays(n) {
   if (mod10 >= 2 && mod10 <= 4) return 'дня';
   return 'дней';
 }
-
 /* ---------- storage ---------- */
 function loadHabits() {
   try {
@@ -108,7 +105,6 @@ function saveHabits() {
     console.error('Не удалось сохранить в localStorage:', e);
   }
 }
-
 /* ---------- utils ---------- */
 function escapeHtml(str) {
   const div = document.createElement('div');
@@ -183,7 +179,6 @@ function showHint(message) {
     els.hint.classList.remove('show');
   }, 2200);
 }
-
 /* ---------- habit metrics ---------- */
 function minutesOnDate(habit, dateKey) {
   return habit.logs.reduce((sum, log) => {
@@ -235,7 +230,6 @@ function bestDay(habit) {
   });
   return best;
 }
-
 /* ---------- CRUD ---------- */
 function addHabit(name, icon, goalMinutes) {
   const habit = {
@@ -269,65 +263,19 @@ function addTime(habitId, minutes) {
   saveHabits();
   render();
 }
-/* Вычитание времени за сегодня. Не уходит в минус:
-   если вычитаемое больше остатка — обнуляет день и сообщает,
-   что больше нечего вычитать. */
-function subtractTime(habitId, minutes) {
-  const habit = habits.find((h) => h.id === habitId);
-  if (!habit || minutes <= 0) return;
-  const tKey = todayKey();
-  let remaining = minutes;
-  let touched = false;
-  for (let i = habit.logs.length - 1; i >= 0 && remaining > 0; i--) {
-    const log = habit.logs[i];
-    if (log.dateKey !== tKey) continue;
-    touched = true;
-    if (log.minutes <= remaining) {
-      remaining -= log.minutes;
-      habit.logs.splice(i, 1);
-    } else {
-      log.minutes -= remaining;
-      remaining = 0;
-    }
-  }
-  saveHabits();
-  render();
-  if (!touched) {
-    showHint('Нечего вычитать');
-  } else if (remaining > 0) {
-    showHint('Больше нечего вычитать');
-  }
-}
-/* Отмена последней записи за сегодня. */
-function undoLast(habitId) {
-  const habit = habits.find((h) => h.id === habitId);
-  if (!habit) return;
-  const tKey = todayKey();
-  let idx = -1;
-  for (let i = habit.logs.length - 1; i >= 0; i--) {
-    if (habit.logs[i].dateKey === tKey) {
-      idx = i;
-      break;
-    }
-  }
-  if (idx === -1) {
-    showHint('Нечего отменять');
-    return;
-  }
-  habit.logs.splice(idx, 1);
-  saveHabits();
-  render();
-}
-/* Полный сброс времени за сегодня (вызывается после подтверждения). */
 function resetToday(habitId) {
   const habit = habits.find((h) => h.id === habitId);
   if (!habit) return;
   const tKey = todayKey();
+  const before = habit.logs.length;
   habit.logs = habit.logs.filter((log) => log.dateKey !== tKey);
+  if (habit.logs.length === before) {
+    showHint('Нечего сбрасывать');
+    return;
+  }
   saveHabits();
   render();
 }
-
 /* ---------- charts ---------- */
 function buildChart(getDayMinutes, n) {
   const keys = lastNDaysKeys(n);
@@ -341,23 +289,26 @@ function buildChart(getDayMinutes, n) {
     .map((value, index) => {
       const date = formatDateShort(keys[index]);
       const title = `${date} — ${formatMinutes(value)}`;
-      const height =
-        value === 0 ? 2 : Math.max(4, Math.round((value / max) * 100));
+      const height = value === 0 ? 2 : Math.max(4, Math.round((value / max) * 100));
       return `
         <div class="chart-bar-wrap" title="${escapeAttr(title)}">
-          <div class="chart-bar${
-            value === 0 ? ' zero' : ''
-          }" style="height:${height}%"></div>
+          <div class="chart-bar${value === 0 ? ' zero' : ''}" style="height:${height}%"></div>
         </div>
       `;
     })
     .join('');
   return `<div class="chart">${bars}</div>`;
 }
+function buildOverallChart() {
+  return buildChart((dateKey) => {
+    return habits.reduce((sum, habit) => {
+      return sum + minutesOnDate(habit, dateKey);
+    }, 0);
+  }, periodDays);
+}
 function buildHabitChart(habit) {
   return buildChart((dateKey) => minutesOnDate(habit, dateKey), periodDays);
 }
-
 /* ---------- card templates ---------- */
 function progressHtml(habit, todayMinutes) {
   if (!habit.goalMinutes) return '';
@@ -365,32 +316,7 @@ function progressHtml(habit, todayMinutes) {
     100,
     Math.round((todayMinutes / habit.goalMinutes) * 100)
   );
-  return `
-    <div class="progress-wrap">
-      <div class="progress-label">
-        <span>Цель: ${formatMinutes(habit.goalMinutes)}</span>
-        <span>${percent}%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width:${percent}%"></div>
-      </div>
-    </div>
-  `;
-}
-function periodSwitchHtml() {
-  return `
-    <div class="section-head">
-      <h3 class="section-title">График по дням</h3>
-      <div class="period-switch">
-        <button class="period-btn${
-          periodDays === 7 ? ' active' : ''
-        }" type="button" data-period="7">7 дней</button>
-        <button class="period-btn${
-          periodDays === 30 ? ' active' : ''
-        }" type="button" data-period="30">30 дней</button>
-      </div>
-    </div>
-  `;
+  return `<div class="progress-wrap"> <div class="progress-label"> <span>Цель: ${formatMinutes(habit.goalMinutes)}</span> <span>${percent}%</span> </div> <div class="progress-bar"> <div class="progress-fill" style="width:${percent}%"></div> </div> </div>`;
 }
 function detailsHtml(habit) {
   const total = totalMinutes(habit);
@@ -412,15 +338,12 @@ function detailsHtml(habit) {
         <div class="detail-label">средняя длительность</div>
       </div>
       <div class="detail-item">
-        <div class="detail-value">${
-          best ? formatDateShort(best.dateKey) : '—'
-        }</div>
+        <div class="detail-value">${best ? formatDateShort(best.dateKey) : '—'}</div>
         <div class="detail-label">
           лучший день${best ? ` · ${formatMinutes(best.minutes)}` : ''}
         </div>
       </div>
     </div>
-    ${periodSwitchHtml()}
     ${buildHabitChart(habit)}
   `;
 }
@@ -471,23 +394,18 @@ function buildTimeCard(habit) {
     'habit-card time-card' +
     (openDetails.has(habit.id) ? ' details-open' : '');
   card.dataset.id = habit.id;
-
   if (editingId === habit.id) {
     card.innerHTML = editFormHtml(habit);
     return card;
   }
-
   const tKey = todayKey();
   const todayMinutes = minutesOnDate(habit, tKey);
   const weekMinutes = minutesForLastNDays(habit, 7);
   const streak = calcTimeStreak(habit);
-  const goalDone = Boolean(
-    habit.goalMinutes && todayMinutes >= habit.goalMinutes
-  );
+  const goalDone = Boolean(habit.goalMinutes && todayMinutes >= habit.goalMinutes);
   const iconHtml = habit.icon
     ? `<span class="time-icon">${escapeHtml(habit.icon)}</span>`
     : '';
-
   card.innerHTML = `
     <div class="time-top">
       <div class="time-info">
@@ -528,18 +446,6 @@ function buildTimeCard(habit) {
       <button class="quick-btn quick-add" type="button" data-minutes="120">
         +2ч
       </button>
-      <button class="quick-btn quick-sub" type="button" data-minutes="15">
-        −15м
-      </button>
-      <button class="quick-btn quick-sub" type="button" data-minutes="30">
-        −30м
-      </button>
-      <button class="quick-btn quick-sub" type="button" data-minutes="60">
-        −1ч
-      </button>
-      <button class="quick-btn undo-btn" type="button" title="Отменить последнее добавление за сегодня">
-        ↶ Отменить
-      </button>
       <div class="custom-time">
         <input
           class="custom-time-input"
@@ -552,9 +458,12 @@ function buildTimeCard(habit) {
           OK
         </button>
       </div>
-      <div class="reset-wrap">
-        <button class="quick-btn reset-btn" type="button">
-          Сбросить сегодня
+      <div
+        class="time-controls-bottom"
+        style="flex-basis:100%;display:flex;align-items:center;gap:8px;margin-top:6px;"
+      >
+        <button class="quick-btn reset-today-btn" type="button">
+          Сбросить
         </button>
       </div>
     </div>
@@ -564,7 +473,6 @@ function buildTimeCard(habit) {
   `;
   return card;
 }
-
 /* ---------- render ---------- */
 function renderStats() {
   const tKey = todayKey();
@@ -577,7 +485,6 @@ function renderStats() {
   const bestStreak = habits.reduce((max, habit) => {
     return Math.max(max, calcTimeStreak(habit));
   }, 0);
-
   let activeHabit = null;
   habits.forEach((habit) => {
     const week = minutesForLastNDays(habit, 7);
@@ -599,7 +506,6 @@ function renderStats() {
       }
     });
   }
-
   els.statToday.textContent = formatMinutes(todayTotal);
   els.statWeek.textContent = formatMinutes(weekTotal);
   els.statBestStreak.textContent = String(bestStreak);
@@ -608,6 +514,9 @@ function renderStats() {
     ? `${activeHabit.name} · ${formatMinutes(activeHabit.minutes)}`
     : '';
 }
+function renderOverallChart() {
+  els.overallChart.innerHTML = buildOverallChart();
+}
 function renderList() {
   els.list.innerHTML = '';
   habits.forEach((habit) => {
@@ -615,43 +524,30 @@ function renderList() {
   });
   els.empty.classList.toggle('show', habits.length === 0);
 }
+function renderPeriodButtons() {
+  document.querySelectorAll('.period-btn').forEach((btn) => {
+    btn.classList.toggle(
+      'active',
+      Number(btn.dataset.period) === periodDays
+    );
+  });
+}
 function render() {
   renderStats();
+  renderOverallChart();
   renderList();
+  renderPeriodButtons();
 }
-
-/* ---------- inline confirms ---------- */
+/* ---------- inline delete confirm ---------- */
 function startDeleteConfirm(card, habit) {
   const actions = card.querySelector('.time-actions');
-  actions.innerHTML = `
-    <div class="confirm-row">
-      Удалить?
-      <button class="confirm-btn confirm-yes" type="button">Да</button>
-      <button class="confirm-btn confirm-no" type="button">Нет</button>
-    </div>
-  `;
+  actions.innerHTML = `<div class="confirm-row"> Удалить? <button class="confirm-btn confirm-yes" type="button">Да</button> <button class="confirm-btn confirm-no" type="button">Нет</button> </div>`;
   actions.querySelector('.confirm-yes').addEventListener('click', () => {
     card.classList.add('is-leaving');
     setTimeout(() => deleteHabit(habit.id), 220);
   });
   actions.querySelector('.confirm-no').addEventListener('click', render);
 }
-function startResetConfirm(card, habit) {
-  const wrap = card.querySelector('.reset-wrap');
-  if (!wrap) return;
-  wrap.innerHTML = `
-    <div class="confirm-row">
-      Сбросить сегодня?
-      <button class="confirm-btn confirm-yes" type="button">Да</button>
-      <button class="confirm-btn confirm-no" type="button">Нет</button>
-    </div>
-  `;
-  wrap.querySelector('.confirm-yes').addEventListener('click', () => {
-    resetToday(habit.id);
-  });
-  wrap.querySelector('.confirm-no').addEventListener('click', render);
-}
-
 /* ---------- events ---------- */
 els.form.addEventListener('submit', (e) => {
   e.preventDefault();
@@ -680,7 +576,6 @@ els.form.addEventListener('submit', (e) => {
   els.goalInput.value = '';
   els.nameInput.focus();
 });
-
 document.addEventListener('click', (e) => {
   const periodBtn = e.target.closest('.period-btn');
   if (periodBtn) {
@@ -688,39 +583,17 @@ document.addEventListener('click', (e) => {
     render();
     return;
   }
-
   const card = e.target.closest('.time-card');
   if (!card) return;
   const id = card.dataset.id;
   const habit = habits.find((h) => h.id === id);
   if (!habit) return;
-
   const quickBtn = e.target.closest('.quick-add');
   if (quickBtn) {
     const minutes = Number(quickBtn.dataset.minutes) || 0;
     if (minutes > 0) addTime(id, minutes);
     return;
   }
-
-  const subBtn = e.target.closest('.quick-sub');
-  if (subBtn) {
-    const minutes = Number(subBtn.dataset.minutes) || 0;
-    if (minutes > 0) subtractTime(id, minutes);
-    return;
-  }
-
-  const undoBtn = e.target.closest('.undo-btn');
-  if (undoBtn) {
-    undoLast(id);
-    return;
-  }
-
-  const resetBtn = e.target.closest('.reset-btn');
-  if (resetBtn) {
-    startResetConfirm(card, habit);
-    return;
-  }
-
   const addTimeBtn = e.target.closest('.add-time-btn');
   if (addTimeBtn) {
     const input = card.querySelector('.custom-time-input');
@@ -730,10 +603,13 @@ document.addEventListener('click', (e) => {
       return;
     }
     addTime(id, minutes);
-    input.value = '';
     return;
   }
-
+  const resetBtn = e.target.closest('.reset-today-btn');
+  if (resetBtn) {
+    resetToday(id);
+    return;
+  }
   const detailsBtn = e.target.closest('.details-btn');
   if (detailsBtn) {
     if (openDetails.has(id)) {
@@ -744,20 +620,17 @@ document.addEventListener('click', (e) => {
     render();
     return;
   }
-
   const editBtn = e.target.closest('.edit-btn');
   if (editBtn) {
     editingId = id;
     render();
     return;
   }
-
   const deleteBtn = e.target.closest('.delete-btn');
   if (deleteBtn) {
     startDeleteConfirm(card, habit);
     return;
   }
-
   const saveEditBtn = e.target.closest('.save-edit-btn');
   if (saveEditBtn) {
     const name = card.querySelector('.edit-name').value.trim();
@@ -787,14 +660,12 @@ document.addEventListener('click', (e) => {
     render();
     return;
   }
-
   const cancelEditBtn = e.target.closest('.cancel-edit-btn');
   if (cancelEditBtn) {
     editingId = null;
     render();
   }
 });
-
 document.addEventListener('keydown', (e) => {
   const target = e.target;
   if (!target || !target.classList) return;
@@ -815,7 +686,6 @@ document.addEventListener('keydown', (e) => {
     render();
   }
 });
-
 /* ---------- init ---------- */
 els.todayDate.textContent = formatToday();
 render();
